@@ -1,0 +1,79 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int     @id @default(autoincrement())
+  userUid      String  @unique @default(uuid())
+  firstName    String
+  lastName     String
+  email        String
+  password     String
+  avatar       String?
+  accessToken  String
+  refreshToken String
+  isOnline     Boolean @default(false)
+
+  inboxParticipants InboxParticipant[]
+  group             Group[]
+  groupParticipants GroupParticipant[]
+  messagesSent      Messages[]         @relation(name: "Sender")
+  messagesReceived  Messages[]         @relation(name: "Receiver")
+}
+
+model Inbox {
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  inboxUid    String   @unique @default(uuid())
+  lastMessage String?
+
+  inboxParticipants InboxParticipant[]
+  messages          Messages[]
+}
+
+model InboxParticipant {
+  id       Int    @id @default(autoincrement())
+  userUid  String
+  inboxUid String
+
+  user  User  @relation(fields: [userUid], references: [userUid])
+  inbox Inbox @relation(fields: [inboxUid], references: [inboxUid])
+}
+
+model Group {
+  id            Int      @id @default(autoincrement())
+  createdAt     DateTime @default(now())
+  groupUid      String   @unique @default(uuid())
+  groupName     String
+  groupAdminUid String
+
+  admin             User               @relation(fields: [groupAdminUid], references: [userUid])
+  groupParticipants GroupParticipant[]
+}
+
+model GroupParticipant {
+  id             Int    @id @default(autoincrement())
+  groupUid       String
+  participantUid String
+
+  group       Group @relation(fields: [groupUid], references: [groupUid])
+  participant User  @relation(fields: [participantUid], references: [userUid])
+}
+
+model Messages {
+  messageUid  String   @unique @default(uuid())
+  sentAt      DateTime @default(now())
+  inboxUid    String
+  senderUid   String
+  receiverUid String
+  message     String
+
+  inbox    Inbox @relation(fields: [inboxUid], references: [inboxUid])
+  sender   User  @relation(name: "Sender", fields: [senderUid], references: [userUid])
+  receiver User  @relation(name: "Receiver", fields: [receiverUid], references: [userUid])
+}
