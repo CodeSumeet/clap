@@ -15,8 +15,8 @@ model User {
   email        String
   password     String
   avatar       String?
-  accessToken  String
-  refreshToken String
+  accessToken  String?
+  refreshToken String?
   isOnline     Boolean @default(false)
 
   inboxParticipants InboxParticipant[]
