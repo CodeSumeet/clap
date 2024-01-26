@@ -4,10 +4,11 @@ import {
   logoutUser,
   registerUser,
 } from "../controllers/user.controller";
+import { upload } from "../middlewares/multer.middleware";
 
 const router = Router();
 
-router.route("/register").post(registerUser);
+router.route("/register").post(upload.any(), registerUser);
 router.route("/login").post(loginUser);
 router.route("/logout").post(logoutUser);
 
