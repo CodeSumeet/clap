@@ -13,11 +13,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.logoutUser = exports.loginUser = exports.registerUser = void 0;
-const prisma_1 = require("../db/prisma");
 const bcrypt_1 = __importDefault(require("bcrypt"));
+const prisma_1 = require("../db/prisma");
+const cloudinary_1 = require("../utils/cloudinary");
 // FUNCTION TO REGISTER USER
 const registerUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log("request: ", req);
+    var _a;
     try {
         const { firstName, lastName, email, password } = req.body;
         // VALIDATING WHETHER ALL FIELDS ARE FILLED
@@ -40,19 +41,31 @@ const registerUser = (req, res) => __awaiter(void 0, void 0, void 0, function* (
                 message: "USER ALREADY EXISTS!",
             });
         }
-        // const avatarLocalPath = await req.files?.avatar[0]?.path;
+        const avatarLocalPath = (_a = req.file) === null || _a === void 0 ? void 0 : _a.path;
+        if (!avatarLocalPath) {
+            return res.status(400).json({
+                success: false,
+                message: "AVATAR FILE IS REQUIRED!",
+            });
+        }
+        const avatar = yield (0, cloudinary_1.uploadOnCloudinary)(avatarLocalPath);
         // HASHING AND SALTING PASSWORD
         const encPassword = yield bcrypt_1.default.hash(password, 10);
         // CREATING NEW USER
         const user = yield prisma_1.prisma.user.create({
             data: {
+                avatar: avatar === null || avatar === void 0 ? void 0 : avatar.url,
                 firstName,
                 lastName,
                 email,
                 password: encPassword,
             },
         });
-        return res.status(200).json(user);
+        return res.status(200).json({
+            success: true,
+            message: "USER REGISTERED SUCCESSFULLY!",
+            user: user,
+        });
     }
     catch (error) {
         console.error("ERROR WHILE REGISTERING USER!", error);

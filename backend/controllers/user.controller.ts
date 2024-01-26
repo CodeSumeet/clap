@@ -1,7 +1,8 @@
-import { Request, Response } from "express";
-import { prisma } from "../db/prisma";
-import { User } from "@prisma/client";
 import bcrypt from "bcrypt";
+import { User } from "@prisma/client";
+import { prisma } from "../db/prisma";
+import { Request, Response } from "express";
+import { uploadOnCloudinary } from "../utils/cloudinary";
 
 interface AuthenticatedRequest extends Request {
   user?: User;
@@ -40,7 +41,16 @@ const registerUser = async (req: AuthenticatedRequest, res: Response) => {
       });
     }
 
-    // const avatarLocalPath = await req.files?.avatar[0]?.path;
+    const avatarLocalPath = req.file?.path;
+
+    if (!avatarLocalPath) {
+      return res.status(400).json({
+        success: false,
+        message: "AVATAR FILE IS REQUIRED!",
+      });
+    }
+
+    const avatar = await uploadOnCloudinary(avatarLocalPath);
 
     // HASHING AND SALTING PASSWORD
     const encPassword = await bcrypt.hash(password, 10);
@@ -48,6 +58,7 @@ const registerUser = async (req: AuthenticatedRequest, res: Response) => {
     // CREATING NEW USER
     const user = await prisma.user.create({
       data: {
+        avatar: avatar?.url,
         firstName,
         lastName,
         email,
@@ -55,7 +66,11 @@ const registerUser = async (req: AuthenticatedRequest, res: Response) => {
       },
     });
 
-    return res.status(200).json(user);
+    return res.status(200).json({
+      success: true,
+      message: "USER REGISTERED SUCCESSFULLY!",
+      user: user,
+    });
   } catch (error) {
     console.error("ERROR WHILE REGISTERING USER!", error);
     return res.status(400).json({

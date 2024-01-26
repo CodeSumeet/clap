@@ -9,6 +9,7 @@ const cors_1 = __importDefault(require("cors"));
 const app = (0, express_1.default)();
 exports.app = app;
 app.use(express_1.default.json());
+app.use(express_1.default.urlencoded({ extended: false }));
 app.use((0, cors_1.default)());
 // ROUTES
 const user_routes_1 = __importDefault(require("./routes/user.routes"));

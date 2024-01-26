@@ -4,7 +4,7 @@ const express_1 = require("express");
 const user_controller_1 = require("../controllers/user.controller");
 const multer_middleware_1 = require("../middlewares/multer.middleware");
 const router = (0, express_1.Router)();
-router.route("/register").post(multer_middleware_1.upload.any(), user_controller_1.registerUser);
+router.route("/register").post(multer_middleware_1.upload.single("avatar"), user_controller_1.registerUser);
 router.route("/login").post(user_controller_1.loginUser);
 router.route("/logout").post(user_controller_1.logoutUser);
 exports.default = router;
