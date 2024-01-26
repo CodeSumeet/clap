@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { prisma } from "../db/prisma";
-import { Prisma, User } from "@prisma/client";
+import { User } from "@prisma/client";
 import bcrypt from "bcrypt";
 
 interface AuthenticatedRequest extends Request {
@@ -27,12 +27,13 @@ const registerUser = async (req: AuthenticatedRequest, res: Response) => {
 
     // VALIDATING WEATHER USER ALREADY EXISTS OR NOT
     const existingUser = await prisma.user.findUnique({
-      where: { email } as Prisma.UserWhereUniqueInput,
+      where: { email: email || undefined },
     });
 
     if (existingUser) {
       console.error("USER ALREADY EXISTS!");
 
+      console.log(existingUser);
       return res.status(400).json({
         success: false,
         message: "USER ALREADY EXISTS!",
@@ -54,7 +55,7 @@ const registerUser = async (req: AuthenticatedRequest, res: Response) => {
       },
     });
 
-    return res.status(200).json(req);
+    return res.status(200).json(user);
   } catch (error) {
     console.error("ERROR WHILE REGISTERING USER!", error);
     return res.status(400).json({
