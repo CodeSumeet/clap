@@ -1,5 +1,5 @@
-import { User } from "@prisma/client";
 import bcrypt from "bcrypt";
+import { User } from "@prisma/client";
 import { prisma } from "../db/prisma";
 import { Request, Response } from "express";
 import { uploadOnCloudinary } from "../utils/cloudinary";
@@ -10,11 +10,11 @@ interface AuthenticatedRequest extends Request {
 }
 
 // FUNCTION TO REGISTER USER
-const registerUser = async (req: AuthenticatedRequest, res: Response) => {
+async function registerUser(req: AuthenticatedRequest, res: Response) {
   try {
     const { firstName, lastName, email, password } = req.body;
 
-    // VALIDATING WHETHER ALL FIELDS ARE FILLED
+    // VALIDATE INPUT DATA
     if (
       [firstName, lastName, email, password].some(
         (field) => field?.trim() === ""
@@ -90,12 +90,82 @@ const registerUser = async (req: AuthenticatedRequest, res: Response) => {
       error,
     });
   }
-};
+}
 
 // FUNCTION TO LOGIN USER
-const loginUser = async (req: AuthenticatedRequest, res: Response) => {};
+async function loginUser(req: AuthenticatedRequest, res: Response) {
+  try {
+    const { email, password } = req.body;
+
+    // VALIDATE INPUT DATA
+    if ([email, password].some((field) => field?.trim() === "")) {
+      console.error("ALL FIELDS ARE REQUIRED!");
+      return res.status(400).json({
+        success: false,
+        message: "ALL FIELDS ARE REQUIRED!",
+      });
+    }
+
+    console.log("Email, Password", email, " ", password);
+
+    // VALIDATING WHETHER USER EXISTS OR NOT
+    const user = await prisma.user.findUnique({
+      where: { email: email || undefined },
+    });
+
+    if (!user) {
+      console.error("USER NOT FOUND!");
+      return res.status(404).json({
+        success: false,
+        message: "USER NOT FOUND!",
+      });
+    }
+
+    //  VERIFYING THE PASSWORD
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordValid) {
+      console.error("INVALID PASSWORD!");
+      return res.status(401).json({
+        success: false,
+        message: "INVALID PASSWORD!",
+      });
+    }
+
+    // GENERATING ACCESS AND REFRESH TOKENS
+    const accessToken = await generateAccessToken(user);
+    const refreshToken = await generateRefreshToken(user);
+
+    // STORING TOKENS TO THE COOKIES
+    res.cookie("accessToken", accessToken, { httpOnly: true });
+    res.cookie("refreshToken", refreshToken, { httpOnly: true });
+
+    return res.status(200).json({
+      success: true,
+      message: "USER LOGGED IN SUCCESSFULLY!",
+      user,
+      accessToken,
+      refreshToken,
+    });
+  } catch (error) {
+    console.error("ERROR WHILE LOGGING IN USER!", error);
+    return res.status(400).json({
+      success: false,
+      message: "INTERNAL SERVER ERROR!!",
+      error,
+    });
+  }
+}
 
 // FUNCTION TO LOGOUT USER
-const logoutUser = async (req: AuthenticatedRequest, res: Response) => {};
+async function logoutUser(req: AuthenticatedRequest, res: Response) {
+  res.clearCookie("accessToken");
+  res.clearCookie("refreshToken");
+
+  return res.status(200).json({
+    success: true,
+    message: "USER LOGGED OUT SUCCESSFULLY!",
+  });
+}
 
 export { registerUser, loginUser, logoutUser };
