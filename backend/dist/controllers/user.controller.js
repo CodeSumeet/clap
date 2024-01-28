@@ -16,6 +16,7 @@ exports.logoutUser = exports.loginUser = exports.registerUser = void 0;
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const prisma_1 = require("../db/prisma");
 const cloudinary_1 = require("../utils/cloudinary");
+const jwt_1 = require("../utils/jwt");
 // FUNCTION TO REGISTER USER
 const registerUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
@@ -36,7 +37,7 @@ const registerUser = (req, res) => __awaiter(void 0, void 0, void 0, function* (
         if (existingUser) {
             console.error("USER ALREADY EXISTS!");
             console.log(existingUser);
-            return res.status(400).json({
+            return res.status(409).json({
                 success: false,
                 message: "USER ALREADY EXISTS!",
             });
@@ -61,17 +62,25 @@ const registerUser = (req, res) => __awaiter(void 0, void 0, void 0, function* (
                 password: encPassword,
             },
         });
+        // GENERATING ACCESS AND REFRFESH TOKENS
+        const accessToken = yield (0, jwt_1.generateAccessToken)(user);
+        const refreshToken = yield (0, jwt_1.generateRefreshToken)(user);
+        // STORING TOKENS TO THE COOKIES
+        res.cookie("accessToken", accessToken, { httpOnly: true });
+        res.cookie("refreshToken", refreshToken, { httpOnly: true });
         return res.status(200).json({
             success: true,
             message: "USER REGISTERED SUCCESSFULLY!",
             user: user,
+            accessToken,
+            refreshToken,
         });
     }
     catch (error) {
         console.error("ERROR WHILE REGISTERING USER!", error);
         return res.status(400).json({
             success: false,
-            message: "ERROR WHILE REGISTERING USER!",
+            message: "INTERNAL SERVER ERROR!!",
             error,
         });
     }

@@ -1,8 +1,9 @@
-import bcrypt from "bcrypt";
 import { User } from "@prisma/client";
+import bcrypt from "bcrypt";
 import { prisma } from "../db/prisma";
 import { Request, Response } from "express";
 import { uploadOnCloudinary } from "../utils/cloudinary";
+import { generateAccessToken, generateRefreshToken } from "../utils/jwt";
 
 interface AuthenticatedRequest extends Request {
   user?: User;
@@ -35,7 +36,7 @@ const registerUser = async (req: AuthenticatedRequest, res: Response) => {
       console.error("USER ALREADY EXISTS!");
 
       console.log(existingUser);
-      return res.status(400).json({
+      return res.status(409).json({
         success: false,
         message: "USER ALREADY EXISTS!",
       });
@@ -66,16 +67,26 @@ const registerUser = async (req: AuthenticatedRequest, res: Response) => {
       },
     });
 
+    // GENERATING ACCESS AND REFRFESH TOKENS
+    const accessToken = await generateAccessToken(user);
+    const refreshToken = await generateRefreshToken(user);
+
+    // STORING TOKENS TO THE COOKIES
+    res.cookie("accessToken", accessToken, { httpOnly: true });
+    res.cookie("refreshToken", refreshToken, { httpOnly: true });
+
     return res.status(200).json({
       success: true,
       message: "USER REGISTERED SUCCESSFULLY!",
       user: user,
+      accessToken,
+      refreshToken,
     });
   } catch (error) {
     console.error("ERROR WHILE REGISTERING USER!", error);
     return res.status(400).json({
       success: false,
-      message: "ERROR WHILE REGISTERING USER!",
+      message: "INTERNAL SERVER ERROR!!",
       error,
     });
   }
