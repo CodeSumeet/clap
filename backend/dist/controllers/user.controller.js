@@ -133,10 +133,10 @@ function loginUser(req, res) {
             }
             // STORING TOKENS TO THE COOKIES
             res.cookie("accessToken", accessToken, {
-                httpOnly: false,
+                httpOnly: true,
             });
             res.cookie("refreshToken", refreshToken, {
-                httpOnly: false,
+                httpOnly: true,
             });
             return res.status(200).json({
                 success: true,
