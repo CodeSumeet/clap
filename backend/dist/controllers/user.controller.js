@@ -125,9 +125,19 @@ function loginUser(req, res) {
             // GENERATING ACCESS AND REFRESH TOKENS
             const accessToken = yield (0, jwt_1.generateAccessToken)(user);
             const refreshToken = yield (0, jwt_1.generateRefreshToken)(user);
+            if (!accessToken || !refreshToken) {
+                return res.send(300).json({
+                    success: false,
+                    message: "SOMETHING WENT WRONG WITH TOKEN GENERATION!",
+                });
+            }
             // STORING TOKENS TO THE COOKIES
-            res.cookie("accessToken", accessToken, { httpOnly: true });
-            res.cookie("refreshToken", refreshToken, { httpOnly: true });
+            res.cookie("accessToken", accessToken, {
+                httpOnly: false,
+            });
+            res.cookie("refreshToken", refreshToken, {
+                httpOnly: false,
+            });
             return res.status(200).json({
                 success: true,
                 message: "USER LOGGED IN SUCCESSFULLY!",

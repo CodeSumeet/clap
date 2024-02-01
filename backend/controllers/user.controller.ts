@@ -136,9 +136,20 @@ async function loginUser(req: AuthenticatedRequest, res: Response) {
     const accessToken = await generateAccessToken(user);
     const refreshToken = await generateRefreshToken(user);
 
+    if (!accessToken || !refreshToken) {
+      return res.send(300).json({
+        success: false,
+        message: "SOMETHING WENT WRONG WITH TOKEN GENERATION!",
+      });
+    }
+
     // STORING TOKENS TO THE COOKIES
-    res.cookie("accessToken", accessToken, { httpOnly: true });
-    res.cookie("refreshToken", refreshToken, { httpOnly: true });
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true,
+    });
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+    });
 
     return res.status(200).json({
       success: true,
