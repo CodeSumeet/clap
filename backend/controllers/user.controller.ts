@@ -72,8 +72,8 @@ async function registerUser(req: AuthenticatedRequest, res: Response) {
     const refreshToken = await generateRefreshToken(user);
 
     // STORING TOKENS TO THE COOKIES
-    res.cookie("accessToken", accessToken, { httpOnly: true });
-    res.cookie("refreshToken", refreshToken, { httpOnly: true });
+    res.cookie("accessToken", accessToken);
+    res.cookie("refreshToken", refreshToken);
 
     return res.status(200).json({
       success: true,
@@ -144,12 +144,8 @@ async function loginUser(req: AuthenticatedRequest, res: Response) {
     }
 
     // STORING TOKENS TO THE COOKIES
-    res.cookie("accessToken", accessToken, {
-      httpOnly: true,
-    });
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-    });
+    res.cookie("accessToken", accessToken);
+    res.cookie("refreshToken", refreshToken);
 
     return res.status(200).json({
       success: true,

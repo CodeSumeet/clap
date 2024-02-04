@@ -67,8 +67,8 @@ function registerUser(req, res) {
             const accessToken = yield (0, jwt_1.generateAccessToken)(user);
             const refreshToken = yield (0, jwt_1.generateRefreshToken)(user);
             // STORING TOKENS TO THE COOKIES
-            res.cookie("accessToken", accessToken, { httpOnly: true });
-            res.cookie("refreshToken", refreshToken, { httpOnly: true });
+            res.cookie("accessToken", accessToken);
+            res.cookie("refreshToken", refreshToken);
             return res.status(200).json({
                 success: true,
                 message: "USER REGISTERED SUCCESSFULLY!",
@@ -132,12 +132,8 @@ function loginUser(req, res) {
                 });
             }
             // STORING TOKENS TO THE COOKIES
-            res.cookie("accessToken", accessToken, {
-                httpOnly: true,
-            });
-            res.cookie("refreshToken", refreshToken, {
-                httpOnly: true,
-            });
+            res.cookie("accessToken", accessToken);
+            res.cookie("refreshToken", refreshToken);
             return res.status(200).json({
                 success: true,
                 message: "USER LOGGED IN SUCCESSFULLY!",
