@@ -1,9 +1,15 @@
 import "./App.css";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Login from "./pages/login/Login";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import Login from "./pages/auth/Login";
 import AuthProvider from "./hooks/useAuth";
-import Home from "./pages/home/Home";
 import AuthenticatedRoute from "./components/auth/AuthenticatedRoute";
+import Chats from "./pages/chats/Chats";
+import Signup from "./pages/auth/Signup";
 
 function App() {
   return (
@@ -11,17 +17,27 @@ function App() {
       <AuthProvider>
         <Routes>
           <Route
-            path="/"
-            element={<AuthenticatedRoute />}
-          >
-            <Route
-              path="/"
-              element={<Home />}
-            />
-          </Route>
+            path="/chats"
+            element={
+              <AuthenticatedRoute>
+                <Chats />
+              </AuthenticatedRoute>
+            }
+          ></Route>
+
+          {/*  */}
           <Route
-            path="/login"
+            index
+            path="/auth"
+            element={<Navigate to="/auth/login" />}
+          />
+          <Route
+            path="/auth/login"
             element={<Login />}
+          />
+          <Route
+            path="/auth/signup"
+            element={<Signup />}
           />
         </Routes>
       </AuthProvider>

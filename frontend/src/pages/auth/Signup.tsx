@@ -1,9 +1,9 @@
 import axios from "axios";
 import { FC, useState } from "react";
 
-interface LoginProps {}
+interface SignupProps {}
 
-const Login: FC<LoginProps> = ({}) => {
+const Signup: FC<SignupProps> = ({}) => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
 
@@ -53,4 +53,4 @@ const Login: FC<LoginProps> = ({}) => {
   );
 };
 
-export default Login;
+export default Signup;

@@ -1,24 +1,30 @@
-import { FC, useEffect } from "react";
+import { FC, ReactNode, useEffect } from "react";
 import { useAuth } from "../../hooks/useAuth";
-import { Navigate, Outlet } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 
-interface AuthenticatedRouteProps {}
+interface AuthenticatedRouteProps {
+  children: ReactNode;
+}
 
-const AuthenticatedRoute: FC<AuthenticatedRouteProps> = () => {
+const AuthenticatedRoute: FC<AuthenticatedRouteProps> = ({ children }) => {
   const auth = useAuth();
-
-  const token = Cookies.get("accessToken");
-
-  if (token === undefined) {
-    return <Navigate to="/login" />;
-  }
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
-    auth?.setToken(token);
-  }, [auth]);
+    const token = Cookies.get("accessToken");
 
-  return <Outlet />;
+    if (location.pathname === "/") {
+      if (token) {
+        return navigate("/chats");
+      } else {
+        return navigate("/auth/login");
+      }
+    }
+  }, [auth, location]);
+
+  return children;
 };
 
 export default AuthenticatedRoute;
