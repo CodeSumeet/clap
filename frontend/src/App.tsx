@@ -17,6 +17,14 @@ function App() {
       <AuthProvider>
         <Routes>
           <Route
+            path="/"
+            element={
+              <AuthenticatedRoute>
+                <Navigate to="/chats" />
+              </AuthenticatedRoute>
+            }
+          />
+          <Route
             path="/chats"
             element={
               <AuthenticatedRoute>

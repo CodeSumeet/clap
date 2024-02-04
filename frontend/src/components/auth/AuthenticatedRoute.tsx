@@ -1,7 +1,6 @@
 import { FC, ReactNode, useEffect } from "react";
 import { useAuth } from "../../hooks/useAuth";
-import { useLocation, useNavigate } from "react-router-dom";
-import Cookies from "js-cookie";
+import { useNavigate } from "react-router-dom";
 
 interface AuthenticatedRouteProps {
   children: ReactNode;
@@ -10,19 +9,14 @@ interface AuthenticatedRouteProps {
 const AuthenticatedRoute: FC<AuthenticatedRouteProps> = ({ children }) => {
   const auth = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
 
   useEffect(() => {
-    const token = Cookies.get("accessToken");
-
-    if (location.pathname === "/") {
-      if (token) {
-        return navigate("/chats");
-      } else {
-        return navigate("/auth/login");
-      }
+    if (auth?.token) {
+      navigate("/chats");
+    } else {
+      navigate("/auth/login");
     }
-  }, [auth, location]);
+  }, [auth?.token]);
 
   return children;
 };
