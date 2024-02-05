@@ -6,46 +6,63 @@ import {
   Navigate,
 } from "react-router-dom";
 import Login from "./pages/auth/Login";
-import AuthProvider from "./hooks/useAuth";
-import AuthenticatedRoute from "./components/auth/AuthenticatedRoute";
+import AuthProvider, { useAuth } from "./hooks/useAuth";
 import Chats from "./pages/chats/Chats";
 import Signup from "./pages/auth/Signup";
 
 function App() {
+  const auth = useAuth();
+
   return (
     <Router>
       <AuthProvider>
         <Routes>
+          {/* Redirect to /chats if authenticated, otherwise to /auth/login */}
           <Route
             path="/"
             element={
-              <AuthenticatedRoute>
+              auth?.token === undefined ? (
                 <Navigate to="/chats" />
-              </AuthenticatedRoute>
+              ) : (
+                <Navigate to="/auth/login" />
+              )
             }
           />
+
+          {/* Chats page accessible only if authenticated */}
           <Route
             path="/chats"
             element={
-              <AuthenticatedRoute>
+              auth?.token === undefined ? (
                 <Chats />
-              </AuthenticatedRoute>
+              ) : (
+                <Navigate to="/auth/login" />
+              )
             }
-          ></Route>
+          />
 
-          {/*  */}
+          {/* Auth routes */}
           <Route
-            index
             path="/auth"
             element={<Navigate to="/auth/login" />}
           />
           <Route
             path="/auth/login"
-            element={<Login />}
+            element={
+              auth?.token === undefined ? <Navigate to="/chats" /> : <Login />
+            }
           />
           <Route
-            path="/auth/signup"
-            element={<Signup />}
+            path="/auth/register"
+            element={
+              auth?.token === undefined ? <Navigate to="/chats" /> : <Signup />
+            }
+          />
+
+          {/* Catch-all route for unmatched paths */}
+          <Route
+            path="*"
+            element={<Navigate to="/" />}
           />
         </Routes>
       </AuthProvider>
