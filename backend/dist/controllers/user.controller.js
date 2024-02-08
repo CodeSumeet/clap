@@ -66,9 +66,6 @@ function registerUser(req, res) {
             // GENERATING ACCESS AND REFRFESH TOKENS
             const accessToken = yield (0, jwt_1.generateAccessToken)(user);
             const refreshToken = yield (0, jwt_1.generateRefreshToken)(user);
-            // STORING TOKENS TO THE COOKIES
-            res.cookie("accessToken", accessToken);
-            res.cookie("refreshToken", refreshToken);
             return res.status(200).json({
                 success: true,
                 message: "USER REGISTERED SUCCESSFULLY!",
@@ -131,9 +128,6 @@ function loginUser(req, res) {
                     message: "SOMETHING WENT WRONG WITH TOKEN GENERATION!",
                 });
             }
-            // STORING TOKENS TO THE COOKIES
-            res.cookie("accessToken", accessToken);
-            res.cookie("refreshToken", refreshToken);
             return res.status(200).json({
                 success: true,
                 message: "USER LOGGED IN SUCCESSFULLY!",

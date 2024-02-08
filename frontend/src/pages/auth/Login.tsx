@@ -1,36 +1,20 @@
-import axios from "axios";
-import { FC, useEffect, useState } from "react";
-import { useAuth } from "../../hooks/useAuth";
-import { useNavigate } from "react-router-dom";
+import { FC, useState } from "react";
 import { Link } from "react-router-dom";
+import { loginUser } from "../../services/auth";
 
 interface LoginProps {}
 
 const Login: FC<LoginProps> = ({}) => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const navigate = useNavigate();
-  const auth = useAuth();
 
-  useEffect(() => {
-    if (auth?.token) {
-      navigate("/chats");
-    }
-  }, []);
-
-  const handleSignin = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     try {
-      const userInfo = {
-        email,
-        password,
-      };
-      const response = await axios.post("/api/v1/users/auth/login", userInfo);
-
-      console.log(response);
+      const response = await loginUser(email, password);
+      if (response?.status === 200) window.location.href = "/chats";
     } catch (error) {
-      console.error("ERROR LOGGING IN!: ", error);
+      console.error("Error logging in:", error);
     }
   };
 
@@ -39,7 +23,7 @@ const Login: FC<LoginProps> = ({}) => {
       <form
         action=""
         className="w-full h-4/5 sm:h-3/5 sm:w-10/12 md:w-3/5 lg:w-2/5 bg-secondary flex flex-col gap-2 px-8 py-4 rounded-xl text-lg text-white"
-        onSubmit={handleSignin}
+        onSubmit={handleLogin}
       >
         <h1 className="font-semibold text-center text-3xl ">Login</h1>
 

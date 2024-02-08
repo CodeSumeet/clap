@@ -30,7 +30,7 @@ function generateAccessToken(user) {
         }
         catch (error) {
             console.error("ERROR GENERATING ACCESS TOKEN: ", error);
-            return null;
+            return "";
         }
     });
 }
@@ -50,7 +50,7 @@ function generateRefreshToken(user) {
         }
         catch (error) {
             console.error("ERROR GENERATING REFRESH TOKEN: ", error);
-            return null;
+            return "";
         }
     });
 }

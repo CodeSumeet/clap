@@ -6,10 +6,9 @@ import {
   useMemo,
   useState,
 } from "react";
-import Cookies from "js-cookie";
 
 interface AuthContextProps {
-  token: string | undefined;
+  token: string | null;
   setToken: (newToken: string) => void;
 }
 
@@ -17,11 +16,11 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
-const AuthContext = createContext<AuthContextProps | undefined>(undefined);
+const AuthContext = createContext<AuthContextProps | null>(null);
 
 const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
-  const [token, setToken_] = useState<string | undefined>(
-    Cookies.get("accessToken")
+  const [token, setToken_] = useState<string | null>(
+    sessionStorage.getItem("accessToken")
   );
 
   const setToken = (newToken: string) => {
@@ -33,7 +32,7 @@ const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
       token,
       setToken,
     }),
-    [token]
+    [token, setToken]
   );
 
   return (

@@ -1,44 +1,30 @@
-import axios from "axios";
-import { FC, useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../../hooks/useAuth";
+import { FC, useState } from "react";
+import { Link } from "react-router-dom";
+import { registerUser } from "../../services/auth";
 
 interface SignupProps {}
 
 const Signup: FC<SignupProps> = ({}) => {
-  const auth = useAuth();
-  const navigate = useNavigate();
-
   const [firstname, setFirstname] = useState<string>("");
   const [lastname, setLastname] = useState<string>("");
   const [avatar, setAvatar] = useState<File>();
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
 
-  useEffect(() => {
-    if (auth?.token) {
-      navigate("/chats");
-    }
-  }, []);
-
   const handleSignin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     try {
-      const formData = new FormData();
-      formData.append("firstName", firstname);
-      formData.append("lastName", lastname);
-      formData.append("avatar", avatar || ""); // Handle avatar if provided
-      formData.append("email", email);
-      formData.append("password", password);
-      const response = await axios.post(
-        "/api/v1/users/auth/register",
-        formData
+      const response = await registerUser(
+        firstname,
+        lastname,
+        email,
+        password,
+        avatar
       );
 
-      console.log(response);
+      if (response?.status === 200) window.location.href = "/chats";
     } catch (error) {
-      console.error("ERROR LOGGING IN!: ", error);
+      console.error("Error while signing up:", error);
     }
   };
 

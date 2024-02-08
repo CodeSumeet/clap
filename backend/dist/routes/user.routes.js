@@ -5,6 +5,6 @@ const user_controller_1 = require("../controllers/user.controller");
 const multer_middleware_1 = require("../middlewares/multer.middleware");
 const router = (0, express_1.Router)();
 router.route("/auth/register").post(multer_middleware_1.upload.single("avatar"), user_controller_1.registerUser);
-router.route("/auth/login").post(user_controller_1.loginUser);
+router.route("/auth/login").post(multer_middleware_1.upload.any(), user_controller_1.loginUser);
 router.route("/auth/logout").post(user_controller_1.logoutUser);
 exports.default = router;

@@ -18,7 +18,7 @@ async function generateAccessToken(user: User) {
     return accessToken;
   } catch (error) {
     console.error("ERROR GENERATING ACCESS TOKEN: ", error);
-    return null;
+    return "";
   }
 }
 
@@ -37,7 +37,7 @@ async function generateRefreshToken(user: User) {
     return refreshToken;
   } catch (error) {
     console.error("ERROR GENERATING REFRESH TOKEN: ", error);
-    return null;
+    return "";
   }
 }
 

@@ -71,10 +71,6 @@ async function registerUser(req: AuthenticatedRequest, res: Response) {
     const accessToken = await generateAccessToken(user);
     const refreshToken = await generateRefreshToken(user);
 
-    // STORING TOKENS TO THE COOKIES
-    res.cookie("accessToken", accessToken);
-    res.cookie("refreshToken", refreshToken);
-
     return res.status(200).json({
       success: true,
       message: "USER REGISTERED SUCCESSFULLY!",
@@ -142,10 +138,6 @@ async function loginUser(req: AuthenticatedRequest, res: Response) {
         message: "SOMETHING WENT WRONG WITH TOKEN GENERATION!",
       });
     }
-
-    // STORING TOKENS TO THE COOKIES
-    res.cookie("accessToken", accessToken);
-    res.cookie("refreshToken", refreshToken);
 
     return res.status(200).json({
       success: true,
