@@ -1,4 +1,4 @@
-import axios from "axios";
+import { makeRequest } from "./api";
 
 async function loginUser(email: string, password: string) {
   try {
@@ -6,10 +6,10 @@ async function loginUser(email: string, password: string) {
     formData.append("email", email);
     formData.append("password", password);
 
-    const response = await axios.post("/api/v1/users/auth/login", formData);
+    const response = await makeRequest("/api/v1/auth/login", "POST", formData);
 
-    sessionStorage.setItem("accessToken", response.data.accessToken);
-    sessionStorage.setItem("refreshToken", response.data.refreshToken);
+    sessionStorage.setItem("accessToken", response.accessToken);
+    sessionStorage.setItem("refreshToken", response.refreshToken);
 
     console.log(response);
     return response;
@@ -33,10 +33,14 @@ async function registerUser(
     formData.append("email", email);
     formData.append("password", password);
 
-    const response = await axios.post("/api/v1/users/auth/register", formData);
+    const response = await makeRequest(
+      "/api/v1/auth/register",
+      "POST",
+      formData
+    );
 
-    sessionStorage.setItem("accessToken", response.data.accessToken);
-    sessionStorage.setItem("refreshToken", response.data.refreshToken);
+    sessionStorage.setItem("accessToken", response.accessToken);
+    sessionStorage.setItem("refreshToken", response.refreshToken);
 
     console.log(response);
     return response;

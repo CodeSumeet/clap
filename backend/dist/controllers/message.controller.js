@@ -9,8 +9,21 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getUser = void 0;
-function getUser(req, res) {
-    return __awaiter(this, void 0, void 0, function* () { });
+exports.sendMessage = void 0;
+function sendMessage(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const { id } = req.params;
+            return res.status(200).json({ id: id });
+        }
+        catch (error) {
+            console.error("ERROR WHILE FETCHING MESSAGES", error);
+            return res.status(500).json({
+                success: false,
+                message: "INTERNAL SERVER ERROR!!",
+                error,
+            });
+        }
+    });
 }
-exports.getUser = getUser;
+exports.sendMessage = sendMessage;

@@ -1,0 +1,12 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const auth_controller_1 = require("../controllers/auth.controller");
+const multer_middleware_1 = require("../middlewares/multer.middleware");
+const router = (0, express_1.Router)();
+router.route("/register").post(multer_middleware_1.upload.single("avatar"), auth_controller_1.registerUser);
+router.route("/login").post(multer_middleware_1.upload.any(), auth_controller_1.loginUser);
+router.route("/logout").post(auth_controller_1.logoutUser);
+router.route("/refreshToken").post(auth_controller_1.refreshToken);
+router.route("/resetPassword").post(auth_controller_1.resetPassword);
+exports.default = router;

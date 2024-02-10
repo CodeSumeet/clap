@@ -12,7 +12,7 @@ dotenv_1.default.config({
 const PORT = process.env.PORT || 8001;
 (0, db_1.connectDB)()
     .then(() => {
-    app_1.app.listen(PORT, () => {
+    app_1.server.listen(PORT, () => {
         console.log(`Server running on PORT ${PORT}`);
     });
 })
