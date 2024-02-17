@@ -24,9 +24,9 @@ app.use(express_1.default.static("public"));
 app.use((0, cookie_parser_1.default)());
 // ROUTES
 const auth_routes_1 = __importDefault(require("./routes/auth.routes"));
-const message_routes_1 = __importDefault(require("./routes/message.routes"));
+const inbox_routes_1 = __importDefault(require("./routes/inbox.routes"));
 app.use("/api/v1/auth", auth_routes_1.default);
-app.use("/api/v1/messages", message_routes_1.default);
+app.use("/api/v1/inboxes", inbox_routes_1.default);
 // SOCKET.IO CODE
 io.on("connection", (socket) => {
     console.log("A user connected");

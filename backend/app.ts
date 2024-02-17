@@ -21,10 +21,10 @@ app.use(cookieParser());
 
 // ROUTES
 import authRouter from "./routes/auth.routes";
-import messageRouter from "./routes/message.routes";
+import inboxRouter from "./routes/inbox.routes";
 
 app.use("/api/v1/auth", authRouter);
-app.use("/api/v1/messages", messageRouter);
+app.use("/api/v1/inboxes", inboxRouter);
 
 // SOCKET.IO CODE
 io.on("connection", (socket) => {

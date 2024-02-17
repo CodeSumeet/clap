@@ -1,0 +1,34 @@
+import { Response } from "express";
+import { AuthenticatedRequest } from "../types/request";
+import { prisma } from "../db/prisma";
+
+async function getInboxes(req: AuthenticatedRequest, res: Response) {
+  try {
+    const inboxes = await prisma.inbox.findMany({
+      where: {
+        inboxParticipants: {
+          some: {
+            userUid: req.userId,
+          },
+        },
+      },
+    });
+
+    return res.status(200).json({ success: true, userId: req.userId, inboxes });
+  } catch (error) {
+    console.error("ERROR WHILE FETCHING MESSAGES", error);
+    return res.status(500).json({
+      success: false,
+      message: "INTERNAL SERVER ERROR!!",
+      error,
+    });
+  }
+}
+
+async function createInbox(req: AuthenticatedRequest, res: Response) {}
+
+async function getInboxMessages(req: AuthenticatedRequest, res: Response) {}
+
+async function sendMessageToInbox(req: AuthenticatedRequest, res: Response) {}
+
+export { getInboxes, createInbox, getInboxMessages, sendMessageToInbox };

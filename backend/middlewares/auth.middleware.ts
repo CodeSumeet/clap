@@ -1,21 +1,19 @@
-import { NextFunction, Request, Response } from "express";
-import jwt, { Secret } from "jsonwebtoken";
-import { User } from "@prisma/client";
-
-interface AuthenticatedRequest extends Request {
-  user?: User;
-  token: string;
-}
+import { NextFunction, Response } from "express";
+import jwt, {
+  Secret,
+  TokenExpiredError,
+  JsonWebTokenError,
+  JwtPayload,
+} from "jsonwebtoken";
+import { AuthenticatedRequest } from "../types/request";
 
 async function isAuthenticated(
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response,
   next: NextFunction
 ) {
   try {
-    const authenticatedReq = req as AuthenticatedRequest; // Type assertion
-
-    const token = authenticatedReq.headers.authorization?.split("Bearer ")[1];
+    const token = req.headers.authorization?.split("Bearer ")[1];
 
     if (!token) {
       return res
@@ -23,25 +21,26 @@ async function isAuthenticated(
         .json({ error: "Unauthorized - No Token Provided" });
     }
 
-    const decoded = jwt.verify(token, process.env.JWTSECRETKEY as Secret);
+    const decodedToken = jwt.verify(
+      token,
+      process.env.JWTSECRETKEY as Secret
+    ) as JwtPayload;
 
-    if (!decoded) {
-      return res.status(401).json({ error: "Unauthorized - Invalid Token" });
-    }
+    req.userId = decodedToken.id;
 
     next();
   } catch (error: any) {
-    console.log("ERROR WHILE AUTHENTICATING USER: ", error);
-
-    if (error.name === "TokenExpiredError") {
+    if (error instanceof TokenExpiredError) {
       return res.status(401).json({ error: "Unauthorized - Token expired" });
-    } else if (error.name === "JsonWebTokenError") {
+    } else if (error instanceof JsonWebTokenError) {
       return res.status(401).json({ error: "Unauthorized - Invalid Token" });
     } else {
+      // Log the error but don't send it to the client
+      console.error("ERROR WHILE AUTHENTICATING USER: ", error);
+
       return res.status(500).json({
         success: false,
         message: "INTERNAL SERVER ERROR!!",
-        error,
       });
     }
   }
