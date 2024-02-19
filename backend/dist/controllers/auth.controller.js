@@ -17,6 +17,7 @@ const bcrypt_1 = __importDefault(require("bcrypt"));
 const prisma_1 = require("../db/prisma");
 const cloudinary_1 = require("../utils/cloudinary");
 const jwt_1 = require("../utils/jwt");
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 // FUNCTION TO REGISTER USER
 function registerUser(req, res) {
     var _a;
@@ -161,7 +162,46 @@ function logoutUser(req, res) {
 exports.logoutUser = logoutUser;
 // FUNCTION TO REFRESH THE ACCESS TOKEN
 function refreshToken(req, res) {
-    return __awaiter(this, void 0, void 0, function* () { });
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const refreshToken = req.body.refreshToken;
+            // Check if refresh token exists
+            if (!refreshToken) {
+                return res
+                    .status(400)
+                    .json({ success: false, message: "No refresh token provided" });
+            }
+            // Verify the refresh token's validity
+            const decodedRefreshToken = jsonwebtoken_1.default.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+            // Extract the user ID associated with the refresh token
+            const userId = decodedRefreshToken.id;
+            // Retrieve user details from the database
+            const user = yield prisma_1.prisma.user.findUnique({ where: { userUid: userId } });
+            // Check if user exists
+            if (!user) {
+                return res
+                    .status(404)
+                    .json({ success: false, message: "User not found" });
+            }
+            const payload = {
+                id: user.id,
+                email: user.email,
+            };
+            // Generate a new access token for the user
+            const accessToken = jsonwebtoken_1.default.sign(payload, process.env.JWT_SECRET_KEY, { expiresIn: "15m" } // Adjust the expiration time as needed
+            );
+            // Send the new access token back to the client
+            return res.status(200).json({ success: true, accessToken: accessToken });
+        }
+        catch (error) {
+            console.error("ERROR WHILE GENERATING NEW ACCESS TOKEN!", error);
+            return res.status(400).json({
+                success: false,
+                message: "INTERNAL SERVER ERROR!!",
+                error,
+            });
+        }
+    });
 }
 exports.refreshToken = refreshToken;
 // FUNCTION TO UPDATE USER PASSWORD

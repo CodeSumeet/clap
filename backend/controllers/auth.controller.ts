@@ -4,6 +4,7 @@ import { prisma } from "../db/prisma";
 import { Request, Response } from "express";
 import { uploadOnCloudinary } from "../utils/cloudinary";
 import { generateAccessToken, generateRefreshToken } from "../utils/jwt";
+import jwt, { Secret } from "jsonwebtoken";
 
 interface AuthenticatedRequest extends Request {
   user?: User;
@@ -168,7 +169,59 @@ async function logoutUser(req: AuthenticatedRequest, res: Response) {
 }
 
 // FUNCTION TO REFRESH THE ACCESS TOKEN
-async function refreshToken(req: Request, res: Response) {}
+async function refreshToken(req: AuthenticatedRequest, res: Response) {
+  try {
+    const refreshToken = req.body.refreshToken;
+
+    // Check if refresh token exists
+    if (!refreshToken) {
+      return res
+        .status(400)
+        .json({ success: false, message: "No refresh token provided" });
+    }
+
+    // Verify the refresh token's validity
+    const decodedRefreshToken: any = jwt.verify(
+      refreshToken,
+      process.env.REFRESH_TOKEN_SECRET as Secret
+    );
+
+    // Extract the user ID associated with the refresh token
+    const userId = decodedRefreshToken.id;
+
+    // Retrieve user details from the database
+    const user = await prisma.user.findUnique({ where: { userUid: userId } });
+
+    // Check if user exists
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+
+    const payload = {
+      id: user.id,
+      email: user.email,
+    };
+
+    // Generate a new access token for the user
+    const accessToken = jwt.sign(
+      payload,
+      process.env.JWT_SECRET_KEY as Secret,
+      { expiresIn: "15m" } // Adjust the expiration time as needed
+    );
+
+    // Send the new access token back to the client
+    return res.status(200).json({ success: true, accessToken: accessToken });
+  } catch (error) {
+    console.error("ERROR WHILE GENERATING NEW ACCESS TOKEN!", error);
+    return res.status(400).json({
+      success: false,
+      message: "INTERNAL SERVER ERROR!!",
+      error,
+    });
+  }
+}
 
 // FUNCTION TO UPDATE USER PASSWORD
 async function resetPassword(req: Request, res: Response) {}

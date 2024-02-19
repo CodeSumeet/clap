@@ -6,6 +6,7 @@ import jwt, {
   JwtPayload,
 } from "jsonwebtoken";
 import { AuthenticatedRequest } from "../types/request";
+import { prisma } from "../db/prisma";
 
 async function isAuthenticated(
   req: AuthenticatedRequest,
@@ -26,7 +27,31 @@ async function isAuthenticated(
       process.env.JWTSECRETKEY as Secret
     ) as JwtPayload;
 
-    req.userId = decodedToken.id;
+    const user = await prisma.user.findUnique({
+      where: { userUid: decodedToken.id },
+      select: {
+        id: true,
+        userUid: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        avatar: true,
+        accessToken: true,
+        refreshToken: true,
+        isOnline: true,
+        inboxParticipants: true,
+        group: true,
+        groupParticipants: true,
+        messagesSent: true,
+        messagesReceived: true,
+      },
+    });
+
+    if (!user) {
+      return res.status(401).json({ error: "Unauthorized - Invalid Token" });
+    }
+
+    req.user = user;
 
     next();
   } catch (error: any) {

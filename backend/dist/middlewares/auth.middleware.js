@@ -34,6 +34,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.isAuthenticated = void 0;
 const jsonwebtoken_1 = __importStar(require("jsonwebtoken"));
+const prisma_1 = require("../db/prisma");
 function isAuthenticated(req, res, next) {
     var _a;
     return __awaiter(this, void 0, void 0, function* () {
@@ -45,7 +46,29 @@ function isAuthenticated(req, res, next) {
                     .json({ error: "Unauthorized - No Token Provided" });
             }
             const decodedToken = jsonwebtoken_1.default.verify(token, process.env.JWTSECRETKEY);
-            req.userId = decodedToken.id;
+            const user = yield prisma_1.prisma.user.findUnique({
+                where: { userUid: decodedToken.id },
+                select: {
+                    id: true,
+                    userUid: true,
+                    firstName: true,
+                    lastName: true,
+                    email: true,
+                    avatar: true,
+                    accessToken: true,
+                    refreshToken: true,
+                    isOnline: true,
+                    inboxParticipants: true,
+                    group: true,
+                    groupParticipants: true,
+                    messagesSent: true,
+                    messagesReceived: true,
+                },
+            });
+            if (!user) {
+                return res.status(401).json({ error: "Unauthorized - Invalid Token" });
+            }
+            req.user = user;
             next();
         }
         catch (error) {

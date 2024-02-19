@@ -8,13 +8,15 @@ async function getInboxes(req: AuthenticatedRequest, res: Response) {
       where: {
         inboxParticipants: {
           some: {
-            userUid: req.userId,
+            userUid: req.user!.userUid,
           },
         },
       },
     });
 
-    return res.status(200).json({ success: true, userId: req.userId, inboxes });
+    return res
+      .status(200)
+      .json({ success: true, userId: req.user!.userUid, inboxes });
   } catch (error) {
     console.error("ERROR WHILE FETCHING MESSAGES", error);
     return res.status(500).json({
