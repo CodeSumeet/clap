@@ -21,9 +21,11 @@ app.use(cookieParser());
 
 // ROUTES
 import authRouter from "./routes/auth.routes";
+import userRouter from "./routes/user.routes";
 import inboxRouter from "./routes/inbox.routes";
 
 app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/user", userRouter);
 app.use("/api/v1/inboxes", inboxRouter);
 
 // SOCKET.IO CODE

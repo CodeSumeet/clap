@@ -10,8 +10,8 @@ import { isAuthenticated } from "../middlewares/auth.middleware";
 const router = Router();
 
 router.route("/").get(isAuthenticated, getInboxes);
+router.route("/:id").get(isAuthenticated, getInboxMessages);
 router.route("/").post(isAuthenticated, createInbox);
-router.route("/:id").post(isAuthenticated, getInboxMessages);
 router.route("/:id/messages").post(isAuthenticated, sendMessageToInbox);
 
 export default router;
