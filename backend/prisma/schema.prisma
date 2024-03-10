@@ -66,6 +66,7 @@ model GroupParticipant {
 }
 
 model Messages {
+  id          Int          @id @default(autoincrement())
   messageUid  String   @unique @default(uuid())
   sentAt      DateTime @default(now())
   inboxUid    String
