@@ -1,4 +1,4 @@
-import { makeRequest } from "./api";
+import { Method, makeRequest } from "./api";
 
 async function loginUser(email: string, password: string) {
   try {
@@ -6,7 +6,11 @@ async function loginUser(email: string, password: string) {
     formData.append("email", email);
     formData.append("password", password);
 
-    const response = await makeRequest("/api/v1/auth/login", "POST", formData);
+    const response = await makeRequest(
+      "/api/v1/auth/login",
+      Method.POST,
+      formData
+    );
 
     sessionStorage.setItem("accessToken", response.accessToken);
     sessionStorage.setItem("refreshToken", response.refreshToken);
@@ -35,7 +39,7 @@ async function registerUser(
 
     const response = await makeRequest(
       "/api/v1/auth/register",
-      "POST",
+      Method.POST,
       formData
     );
 

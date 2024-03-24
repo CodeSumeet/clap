@@ -1,5 +1,5 @@
-import { FC, useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { FC, useState } from "react";
+import { Link } from "react-router-dom";
 import { loginUser } from "../../services/auth";
 import { useAuth } from "../../hooks/useAuth";
 
@@ -12,7 +12,6 @@ const Login: FC<LoginProps> = ({}) => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const { setToken } = useAuth();
-  const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

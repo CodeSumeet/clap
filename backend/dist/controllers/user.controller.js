@@ -23,7 +23,6 @@ function getUser(req, res) {
             if (!user) {
                 return res.status(401).json({ error: "Unauthorized" });
             }
-            // Return the user data in the response
             return res.status(200).json({ success: true, user });
         }
         catch (error) {
@@ -44,7 +43,7 @@ function getUserProfile(req, res) {
             if (!userUid || typeof userUid !== "string") {
                 return res.status(400).json({ error: "Bad Request" });
             }
-            // Find the user by userUid
+            // FIND THE USER BY userUid
             const user = yield prisma_1.prisma.user.findUnique({
                 where: { userUid },
                 select: {
@@ -57,11 +56,9 @@ function getUserProfile(req, res) {
                     isOnline: true,
                 },
             });
-            // Check if user exists
             if (!user) {
                 return res.status(404).json({ error: "User not found" });
             }
-            // Return user profile
             return res.status(200).json({ success: true, user });
         }
         catch (error) {
@@ -79,7 +76,6 @@ function updateUser(req, res) {
         const userId = req.user.id;
         const updates = req.body;
         try {
-            // Validate updates here if necessary
             const updatedUser = yield prisma_1.prisma.user.update({
                 where: { id: userId },
                 data: updates,
@@ -89,13 +85,11 @@ function updateUser(req, res) {
                     .status(404)
                     .json({ success: false, message: "User not found" });
             }
-            // Log the update operation
             console.log(`User ${userId} details updated:`, updates);
             return res.status(200).json({ success: true, user: updatedUser });
         }
         catch (error) {
             console.error("Error updating user:", error);
-            // Provide a generic error response to avoid leaking sensitive information
             return res.status(500).json({
                 success: false,
                 message: "Internal server error. Please try again later.",
@@ -113,7 +107,6 @@ function changePassword(req, res) {
         const user = yield prisma_1.prisma.user.findUnique({
             where: { userUid },
         });
-        // Check that the provided password is correct
         const validPassword = yield bcrypt_1.default.compare(currentPassword, user === null || user === void 0 ? void 0 : user.password);
         if (!validPassword) {
             return res.status(401).json({
@@ -121,7 +114,6 @@ function changePassword(req, res) {
                 message: "Invalid Password",
             });
         }
-        // If the password is correct, hash and save the new password
         const hashedNewPassword = yield bcrypt_1.default.hash(newPassword, 10);
         try {
             yield prisma_1.prisma.user.update({

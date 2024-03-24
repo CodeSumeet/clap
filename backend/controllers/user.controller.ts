@@ -12,7 +12,6 @@ async function getUser(req: AuthenticatedRequest, res: Response) {
       return res.status(401).json({ error: "Unauthorized" });
     }
 
-    // Return the user data in the response
     return res.status(200).json({ success: true, user });
   } catch (error) {
     console.error("Error while fetching user:", error);
@@ -32,7 +31,7 @@ async function getUserProfile(req: AuthenticatedRequest, res: Response) {
       return res.status(400).json({ error: "Bad Request" });
     }
 
-    // Find the user by userUid
+    // FIND THE USER BY userUid
     const user = await prisma.user.findUnique({
       where: { userUid },
       select: {
@@ -46,12 +45,10 @@ async function getUserProfile(req: AuthenticatedRequest, res: Response) {
       },
     });
 
-    // Check if user exists
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
 
-    // Return user profile
     return res.status(200).json({ success: true, user });
   } catch (error) {
     console.error("Error while fetching user profile:", error);
@@ -67,8 +64,6 @@ async function updateUser(req: AuthenticatedRequest, res: Response) {
   const updates = req.body;
 
   try {
-    // Validate updates here if necessary
-
     const updatedUser = await prisma.user.update({
       where: { id: userId },
       data: updates,
@@ -80,14 +75,12 @@ async function updateUser(req: AuthenticatedRequest, res: Response) {
         .json({ success: false, message: "User not found" });
     }
 
-    // Log the update operation
     console.log(`User ${userId} details updated:`, updates);
 
     return res.status(200).json({ success: true, user: updatedUser });
   } catch (error) {
     console.error("Error updating user:", error);
 
-    // Provide a generic error response to avoid leaking sensitive information
     return res.status(500).json({
       success: false,
       message: "Internal server error. Please try again later.",
@@ -104,7 +97,6 @@ async function changePassword(req: AuthenticatedRequest, res: Response) {
     where: { userUid },
   });
 
-  // Check that the provided password is correct
   const validPassword = await bcrypt.compare(currentPassword, user!?.password);
   if (!validPassword) {
     return res.status(401).json({
@@ -112,7 +104,7 @@ async function changePassword(req: AuthenticatedRequest, res: Response) {
       message: "Invalid Password",
     });
   }
-  // If the password is correct, hash and save the new password
+
   const hashedNewPassword = await bcrypt.hash(newPassword, 10);
   try {
     await prisma.user.update({
