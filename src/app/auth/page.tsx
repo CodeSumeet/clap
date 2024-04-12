@@ -2,8 +2,11 @@
 
 import Button from "@/components/Button";
 import Input from "@/components/Input";
+import axios from "axios";
 import { FC, useCallback, useState } from "react";
 import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
+import toast from "react-hot-toast";
+import { signIn } from "next-auth/react";
 
 interface pageProps {}
 
@@ -37,11 +40,27 @@ const page: FC<pageProps> = ({}) => {
     setIsLoading(true);
 
     if (variant === "REGISTER") {
-      // Axios Register
+      axios
+        .post("/api/register", data)
+        .catch(() => toast.error("Registration failed"))
+        .finally(() => setIsLoading(false));
     }
 
     if (variant === "LOGIN") {
-      // Axios Sign in
+      signIn("credentials", {
+        ...data,
+        redirect: false,
+      })
+        .then((callback) => {
+          if (callback?.error) {
+            toast.error("Invalid Credentials!");
+          }
+
+          if (callback?.ok && !callback?.error) {
+            toast.success("Logged In!");
+          }
+        })
+        .finally(() => setIsLoading(false));
     }
   };
   return (
